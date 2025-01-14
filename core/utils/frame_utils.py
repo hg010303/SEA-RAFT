@@ -104,7 +104,7 @@ def readFlowKITTI(filename):
     flow = cv2.imread(filename, cv2.IMREAD_ANYDEPTH|cv2.IMREAD_COLOR)
     flow = flow[:,:,::-1].astype(np.float32)
     flow, valid = flow[:, :, :2], flow[:, :, 2]
-    flow = (flow - 2**15) / 64.0
+    flow = (flow - 2**15) / 100.0
     return flow, valid
 
 def readDispKITTI(filename):
@@ -115,8 +115,14 @@ def readDispKITTI(filename):
 
 
 def writeFlowKITTI(filename, uv):
-    uv = 64.0 * uv + 2**15
+    uv_tmp = uv.copy()
+    uv = 100.0 * uv + 2**15
+    
     valid = np.ones([uv.shape[0], uv.shape[1], 1])
+    uv[np.abs(uv_tmp*100)>=2**15] = 0
+    valid[np.abs(uv_tmp[:,:,0]*100) >= 2**15] = 0
+    valid[np.abs(uv_tmp[:,:,0]*100) >= 2**15] = 0
+    
     uv = np.concatenate([uv, valid], axis=-1).astype(np.uint16)
     cv2.imwrite(filename, uv[..., ::-1])
 

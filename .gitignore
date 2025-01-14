@@ -18,3 +18,4 @@ weights
 *.egg-info
 *.npy
 *.npz
+*.png
